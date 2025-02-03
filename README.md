@@ -19,8 +19,11 @@ save code as "voicebot.py"
 **RUNING**
 
 1.First put the open API key  on "open_apikey= myapikey"
+
 2.Run the python terminal "python voicebot.py"
+
 3.Follow the link of html file.
+
 4.Ask what ever you want
 
 **Thank you**
