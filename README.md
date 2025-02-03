@@ -20,7 +20,7 @@ save code as "voicebot.py"
 
 1.First put the open API key  on "open_apikey= myapikey"
 
-2.Run the python terminal "python voicebot.py"
+2.Run the python terminal  execute this "python voicebot.py"
 
 3.Follow the link of html file.
 
