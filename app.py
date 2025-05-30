@@ -1,10 +1,11 @@
 from flask import Flask, render_template, request, jsonify
 import openai
+import os
 
 app = Flask(__name__)
 
 # OpenAI API Key
-openai.api_key = "myapikey"
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 # Predefined list of questions
