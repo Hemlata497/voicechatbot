@@ -5,12 +5,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const voiceButton = document.getElementById("voice-button");
 
     // Function to send user message to the Flask backend
-    function sendMessage() {
-        let message = userInput.value.trim();
-        if (message === "") return;
+    function sendMessage(message) {
+        if (message.trim() === "") return;
 
         // Append user message to the chat window
-        appendMessage("User", message, "user");
+        appendMessage("You", message, "user");
         userInput.value = "";
 
         fetch("/get_response", {
@@ -21,11 +20,16 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(response => response.json())
         .then(data => {
             // Append bot message to the chat window
-            appendMessage("Bot", data.response, "ai");
+            appendMessage("AI Assistant", data.response, "ai");
             speakText(data.response);
         })
         .catch(error => console.error("Error:", error));
     }
+
+    // Function for quick reply buttons
+    window.sendQuickReply = function(message) {
+        sendMessage(message);
+    };
 
     // Function to append messages to the chat window
     function appendMessage(sender, message, senderClass) {
@@ -39,6 +43,10 @@ document.addEventListener("DOMContentLoaded", function () {
     // Function for speech synthesis (Bot reads response aloud)
     function speakText(text) {
         let speech = new SpeechSynthesisUtterance(text);
+        speech.lang = "en-US";
+        speech.volume = 1;
+        speech.pitch = 1;
+        speech.rate = 1;
         window.speechSynthesis.speak(speech);
     }
 
@@ -49,26 +57,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
         recognition.onstart = function () {
             console.log("Listening...");
+            voiceButton.style.background = "#1e40af"; // Visual feedback
         };
 
         recognition.onresult = function (event) {
             let speechResult = event.results[0][0].transcript;
             userInput.value = speechResult;
-            sendMessage();
+            sendMessage(speechResult);
+            voiceButton.style.background = "#3b82f6";
+        };
+
+        recognition.onend = function () {
+            voiceButton.style.background = "#3b82f6";
         };
 
         recognition.start();
     }
 
-    // Event listeners for sending messages & voice input
-    sendButton.addEventListener("click", sendMessage);
+    // Event listeners
+    sendButton.addEventListener("click", () => sendMessage(userInput.value));
     voiceButton.addEventListener("click", voiceInput);
-
-    // Add an event listener for the Enter key press
     userInput.addEventListener("keydown", function(event) {
         if (event.key === "Enter") {
-            event.preventDefault();  // Prevents the default action (form submission, etc.)
-            sendMessage();
+            event.preventDefault();
+            sendMessage(userInput.value);
         }
     });
+
+    // Display welcome message
+    appendMessage("AI Assistant", "Hello! How can I assist you today?", "ai");
 });
