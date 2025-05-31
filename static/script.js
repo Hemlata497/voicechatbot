@@ -3,15 +3,30 @@ document.addEventListener("DOMContentLoaded", function () {
     const userInput = document.getElementById("user-input");
     const sendButton = document.getElementById("send-button");
     const voiceButton = document.getElementById("voice-button");
+    const themeToggle = document.getElementById("theme-toggle");
 
-    // Function to send user message to the Flask backend
+    // Theme toggle functionality
+    const savedTheme = localStorage.getItem("theme") || "light";
+    document.documentElement.setAttribute("data-theme", savedTheme);
+    updateThemeIcon(savedTheme);
+
+    themeToggle.addEventListener("click", () => {
+        const currentTheme = document.documentElement.getAttribute("data-theme");
+        const newTheme = currentTheme === "light" ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+        updateThemeIcon(newTheme);
+    });
+
+    function updateThemeIcon(theme) {
+        themeToggle.textContent = theme === "light" ? "🌙" : "☀️";
+    }
+
+    // Send message to Flask backend
     function sendMessage(message) {
         if (message.trim() === "") return;
-
-        // Append user message to the chat window
         appendMessage("You", message, "user");
         userInput.value = "";
-
         fetch("/get_response", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -19,19 +34,21 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then(response => response.json())
         .then(data => {
-            // Append bot message to the chat window
             appendMessage("AI Assistant", data.response, "ai");
             speakText(data.response);
         })
-        .catch(error => console.error("Error:", error));
+        .catch(error => {
+            console.error("Error:", error);
+            appendMessage("AI Assistant", "Oops, something went wrong!", "ai");
+        });
     }
 
-    // Function for quick reply buttons
+    // Quick reply support
     window.sendQuickReply = function(message) {
         sendMessage(message);
     };
 
-    // Function to append messages to the chat window
+    // Append message to chat window
     function appendMessage(sender, message, senderClass) {
         let messageDiv = document.createElement("div");
         messageDiv.classList.add("message", senderClass);
@@ -40,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
         chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // Function for speech synthesis (Bot reads response aloud)
+    // Speech synthesis
     function speakText(text) {
         let speech = new SpeechSynthesisUtterance(text);
         speech.lang = "en-US";
@@ -50,27 +67,23 @@ document.addEventListener("DOMContentLoaded", function () {
         window.speechSynthesis.speak(speech);
     }
 
-    // Function for voice input (Speech-to-Text)
+    // Voice input
     function voiceInput() {
         let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         recognition.lang = "en-US";
-
         recognition.onstart = function () {
             console.log("Listening...");
-            voiceButton.style.background = "#1e40af"; // Visual feedback
+            voiceButton.style.background = document.documentElement.getAttribute("data-theme") === "light" ? "#1e40af" : "#334155";
         };
-
         recognition.onresult = function (event) {
             let speechResult = event.results[0][0].transcript;
             userInput.value = speechResult;
             sendMessage(speechResult);
-            voiceButton.style.background = "#3b82f6";
+            voiceButton.style.background = "";
         };
-
         recognition.onend = function () {
-            voiceButton.style.background = "#3b82f6";
+            voiceButton.style.background = "";
         };
-
         recognition.start();
     }
 
@@ -84,6 +97,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Display welcome message
-    appendMessage("AI Assistant", "Hello! How can I assist you today?", "ai");
+    // Welcome message
+    appendMessage("AI Assistant", "Hello! I'm here to help. What's on your mind?", "ai");
 });
