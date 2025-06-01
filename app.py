@@ -1,13 +1,13 @@
 from flask import Flask, render_template, request, jsonify
-import openai
+import google.generativeai as genai
 import os
 from dotenv import load_dotenv
+
 app = Flask(__name__)
 
-# OpenAI API Key\
+# Gemini API Key
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 # Predefined list of questions
 questions = [
@@ -19,15 +19,12 @@ questions = [
 # Store current question index
 current_question_index = 0
 
-def get_openai_response(prompt):
-    """Fetches a response from OpenAI's GPT model."""
+def get_gemini_response(prompt):
+    """Fetches a response from Google's Gemini model."""
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "system", "content": "You are a helpful and friendly assistant."},
-                      {"role": "user", "content": prompt}],
-        )
-        return response['choices'][0]['message']['content']
+        model = genai.GenerativeModel('gemini-1.5-flash')  # Adjust model name as needed
+        response = model.generate_content(prompt)
+        return response.text
     except Exception as e:
         print(f"Error: {e}")
         return "I'm having trouble generating a response right now. Please try again later."
@@ -48,8 +45,8 @@ def get_response():
         bot_response = questions[current_question_index]
         current_question_index += 1
     else:
-        # If all questions are asked, continue the conversation with GPT
-        bot_response = get_openai_response(user_input)
+        # If all questions are asked, continue the conversation with Gemini
+        bot_response = get_gemini_response(user_input)
 
     return jsonify({"response": bot_response})
 
