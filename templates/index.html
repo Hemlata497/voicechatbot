@@ -3,28 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chatbot</title>
+    <title>Buddy</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 </head>
 <body>
+    <div id="particles"></div>
     <div class="chat-container">
         <div class="chat-header">
             <img src="{{ url_for('static', filename='bot.jpg') }}" alt="Bot Avatar" class="bot-avatar">
-            <h2>AI Assistant</h2>
-            <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+            <h2>Buddy</h2>
+            <button id="theme-toggle" class="icon-button">🌙</button>
         </div>
+
+        <div class="controls">
+            <button id="export-button" class="control-button">Export Chat</button>
+        </div>
+
         <div id="chat-box"></div>
+
+        <div id="file-viewer" style="display: none;">
+            <textarea id="file-content" readonly></textarea>
+        </div>
+
         <div class="input-container">
-            <input type="text" id="user-input" placeholder="Ask me anything..." aria-label="User input">
-            <button id="send-button" aria-label="Send message">Send</button>
-            <button id="voice-button" aria-label="Voice input">🎤</button>
-            <div class="quick-replies">
-                <button class="quick-reply" onclick="sendQuickReply('Tell me a joke')">Tell me a joke</button>
-                <button class="quick-reply" onclick="sendQuickReply('What&#39;s new?')">What's new?</button>
+            <div class="message-input">
+                <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off">
+                <div class="file-upload-wrapper">
+                    <input type="file" id="file-upload" style="display: none;">
+                    <button id="upload-button" class="icon-button">📎</button>
+                </div>
+                <button id="send-button" class="icon-button">➤</button>
+                <button id="voice-button" class="icon-button">🎤</button>
+            </div>
+            <div id="voice-progress" class="progress-bar"></div>
+            <div class="voice-controls">
+                <div class="control-group">
+                    <label for="voice-pitch">Pitch:</label>
+                    <input type="range" id="voice-pitch" min="0.5" max="2" step="0.1" value="1">
+                </div>
+                <div class="control-group">
+                    <label for="voice-speed">Speed:</label>
+                    <input type="range" id="voice-speed" min="0.5" max="2" step="0.1" value="1">
+                </div>
             </div>
         </div>
     </div>
+
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
